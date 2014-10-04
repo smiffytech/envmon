@@ -3,6 +3,8 @@
 class ENVMON  {
   /** var array template basic document template. */
   public $template;
+  /** var array sensor_template template for sensor document. */
+  public $sensor_template;
   /** var array thisdoc active document. */
   public $thisdoc;
   /** var array dbparams database connection parameters. */
@@ -55,6 +57,13 @@ class ENVMON  {
           'long' => null,
           'alt' => null
         ),
+    );
+
+    $this->sensor_template = array(
+      'type' => null,
+      'device_id' => null,
+      'description' => null,
+      'location' => null
     );
 
     $this->dbparams = array(
