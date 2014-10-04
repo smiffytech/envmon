@@ -11,12 +11,32 @@ class ENVMON  {
   public $dbparams;
   /** var object db MongoDB client connection to database. */
   public $db;
+  /** var array retrieved document from database. */
+  public $retrieved;
 
   /**
    * Create a new document from template.
    */
-  public function newdoc() {
+  public function newdoc($date = date('Y-m-d')) {
     $this->thisdoc = $this->template;
+
+    /* Does record already exist? */
+    $this->get($date);
+    if (count($this->retrieved) > 0) {
+      return(0);
+    }
+
+    $_id = new MongoId($date);
+    
+  }
+
+  /**
+   * Retrieve a record by date.
+   */
+  public function get($date = date('Y-m-d')) {
+    $_id = new MongoId($date);
+
+    $this->retrieved = $this->db->{'data'}->findOne(array('id' => $_id));
   }
 
   /**
@@ -49,14 +69,12 @@ class ENVMON  {
    * database connection parameters.
    */
   public function __construct() {
+    $config_json = file_get_contents('./siteconfig.json');
+
+    $jdata = json_decode($config_json, true);
+
     $this->template = array(
       'date' => '0000-00-00',
-      'geo' => array(
-          'active' => false,
-          'lat' => null,
-          'long' => null,
-          'alt' => null
-        ),
     );
 
     $this->sensor_template = array(

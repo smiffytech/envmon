@@ -1,0 +1,16 @@
+{
+  'database' : {
+    'useauth' : false,
+    'user' : null,
+    'pass' : null,
+    'db' : 'envmon',
+    'host' : 'localhost',
+    'port' : 27017 
+  },
+  'geo' : {
+    'active' : false,
+    'lat' : null,
+    'long' : null,
+    'alt' : null
+  },
+}
