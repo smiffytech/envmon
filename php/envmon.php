@@ -1,20 +1,20 @@
 <?php
 
-class ENVMON {
+class ENVMON  {
   /** var array template basic document template. */
-  public var template;
+  public $template;
   /** var array thisdoc active document. */
-  public var thisdoc;
+  public $thisdoc;
   /** var array dbparams database connection parameters. */
-  public var dbparams;
+  public $dbparams;
   /** var object db MongoDB client connection to database. */
-  public var db;
+  public $db;
 
   /**
    * Create a new document from template.
    */
   public function newdoc() {
-    $this->thisdoc = $this->template();
+    $this->thisdoc = $this->template;
   }
 
   /**
@@ -22,6 +22,7 @@ class ENVMON {
    * database.
    */
   public function insert() {
+    $this->db->{'data'}->insert($this->thisdoc);
   }
 
 
@@ -30,9 +31,15 @@ class ENVMON {
    * Database connection information should be set first.
    */
   public function init() {
-    $cstring = 'mongodb://' . $this->dbparams['host'] . ':' . $this->dbparams['port'];
+    $cstring = 'mongodb://';
+
+    if ( $this->dbparams['useauth'] === true ) {
+      $cstring .= $this->dbparams['user'] . ':' . $this->dbparams['pass'] . '@';
+    }
+
+    $cstring .= $this->dbparams['host'] . ':' . $this->dbparams['port'];
     $mongo = new MongoClient($cstring);
-    $this->db = $mongo->$this->dbparams['db'];
+    $this->db = $mongo->selectDB($this->dbparams['db']);
   }
 
   /**
