@@ -7,36 +7,45 @@ class ENVMON  {
   public $sensor_template;
   /** var array thisdoc active document. */
   public $thisdoc;
-  /** var array dbparams database connection parameters. */
-  public $dbparams;
+  /** var array config system configuration parameters. */
+  public $config;
   /** var object db MongoDB client connection to database. */
   public $db;
   /** var array retrieved document from database. */
   public $retrieved;
+  /** var string date today's date, by local timezone. */
+  public $date;
 
   /**
    * Create a new document from template.
    */
-  public function newdoc($date = date('Y-m-d')) {
+  public function newdoc( $date = null ) {
+
     $this->thisdoc = $this->template;
+
+    $this->thisdoc['date'] = ( $date === null ? $this->date : $date );
+
+    $this->thisdoc['_id'] = new MongoID();
 
     /* Does record already exist? */
     $this->get($date);
     if (count($this->retrieved) > 0) {
-      return(0);
+      return( -1 );
     }
-
-    $_id = new MongoId($date);
     
+    return( $this->thisdoc['_id']->{'$id'} );
   }
 
   /**
    * Retrieve a record by date.
    */
-  public function get($date = date('Y-m-d')) {
-    $_id = new MongoId($date);
+  public function get( $date = null ) {
+    if ( $date === null ) {
+      $date = $this->date;
+    }
 
-    $this->retrieved = $this->db->{'data'}->findOne(array('id' => $_id));
+    $this->retrieved = $this->db->{'data'}->findOne( array( 'date' => $date ) );
+    $this->retrieved['recid'] = $this->retrieved['_id']->{'$id'};
   }
 
   /**
@@ -47,21 +56,36 @@ class ENVMON  {
     $this->db->{'data'}->insert($this->thisdoc);
   }
 
-
   /**
    * Initialisation, including database connection.
    * Database connection information should be set first.
    */
   public function init() {
-    $cstring = 'mongodb://';
+    $config_json = file_get_contents( './siteconfig.json' );
 
-    if ( $this->dbparams['useauth'] === true ) {
-      $cstring .= $this->dbparams['user'] . ':' . $this->dbparams['pass'] . '@';
+    if ( $config_json === false ) {
+      /* Return error - could not open config file. */
+      return( -1 );
     }
 
-    $cstring .= $this->dbparams['host'] . ':' . $this->dbparams['port'];
+    $this->config = json_decode( $config_json, true );
+
+    if ( $this->config === null ) {
+      /* Return error - could not parse JSON. */
+      return( -2 );
+    }
+
+    $cstring = 'mongodb://';
+
+    if ( $this->config['database']['useauth'] === true ) {
+      $cstring .= $this->config['database']['user'] . ':' . $this->config['database']['pass'] . '@';
+    }
+
+    $cstring .= $this->config['database']['host'] . ':' . $this->config['database']['port'];
     $mongo = new MongoClient($cstring);
-    $this->db = $mongo->selectDB($this->dbparams['db']);
+    $this->db = $mongo->selectDB($this->config['database']['db']);
+
+    return( 0 );
   }
 
   /**
@@ -69,13 +93,12 @@ class ENVMON  {
    * database connection parameters.
    */
   public function __construct() {
-    $config_json = file_get_contents('./siteconfig.json');
-
-    $jdata = json_decode($config_json, true);
+    $this->date = date( 'Y-m-d' );
 
     $this->template = array(
       'date' => '0000-00-00',
     );
+    // 288 timeslots.
 
     $this->sensor_template = array(
       'type' => null,
@@ -84,14 +107,6 @@ class ENVMON  {
       'location' => null
     );
 
-    $this->dbparams = array(
-      'useauth' => false,
-      'user' => null,
-      'pass' => null,
-      'db' => 'envmon',
-      'host' => 'localhost',
-      'port' => 27017
-    );
   }
 }
 
