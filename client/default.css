@@ -1,0 +1,22 @@
+.pre
+{
+  white-space: pre;
+  font-family: monospace;
+}
+.formrow
+{
+	clear: both;
+	padding: .5em;
+}
+.label
+{
+	width: 10em;
+	float: left;
+	text-align: right;
+	font-weight: bold;
+	margin-right: 1em;
+}
+.widget
+{
+	margin-left: 9em;
+}
