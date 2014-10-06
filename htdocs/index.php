@@ -106,8 +106,19 @@ foreach ( $mandatory_params as $thisparam ) {
   }
 }
 
-$ts = $em->get_timeslot( $jdata['timeslot' );
+/*
+ * We can handle timeslots given as either an index ( 0 - 287 )
+ * or as a time ( 00:00 - 23:55, increments of five minutes only.)
+ */
+$ts = $em->get_timeslot( $jdata['timeslot'] );
+if ( $ts < 0 ) {
+  bad_request( 'invalid timeslot ' . $jdata['timeslot'] );
+}
 
+/*
+ * Attempt to retrieve the day's document. If one does not 
+ * exist, create, then retrieve.
+ */
 $em->getbydate( $jdata['date'] );
 if ( count( $em->retrieved ) == 0 ) {
   $em->newdoc( $jdata['date'] );
@@ -115,7 +126,7 @@ if ( count( $em->retrieved ) == 0 ) {
 }
 
 /* Does a record for this timeslot/sensor exist? */
-$exists = array_key_exists( $jdata['device_id'], $em->retrieved['data'][ $jdata['timeslot'] - 1 ]);
+$exists = array_key_exists( $jdata['device_id'], $em->retrieved['data'][ $jdata['timeslot'] ]);
 
 /* Is replace parameter present, and true? */
 $replace = ( array_key_exists( 'replace', $jdata ) && 
@@ -124,6 +135,7 @@ $replace = ( array_key_exists( 'replace', $jdata ) &&
 
 if ( ( $exists === true && $replace === true ) || $exists === false ) {
   /* Save record. */
+  $em->save( $ts, $jdata['device_id'], $jdata['data'] );
 } else {
   /* Record exists, replace not set - return conflict. */
   header( $_SERVER['SERVER_PROTOCOL'] . ' 409 Conflict' );
@@ -132,10 +144,19 @@ if ( ( $exists === true && $replace === true ) || $exists === false ) {
   exit;
 }
 
-send_json( $em->doc['data'][4] );
+/* Return document MongoID as plain text. */
+send_text( $em->retrieved['_id']->{'$id'} );
 
 
 /***** Functions *****/
+
+function send_text( $text ) {
+  header('Content-type: text/plain');
+  header( $_SERVER['SERVER_PROTOCOL'] . ' 200 OK' );
+  echo '200 OK ' . $text;
+  ob_flush();
+  exit;
+}
 
 function send_json( $jdata ) {
   header('Content-type: application/json');

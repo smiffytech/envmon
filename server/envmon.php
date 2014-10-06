@@ -55,12 +55,13 @@ class ENVMON  {
   /**
    * Save a sensor reading.
    */
-  public function save( $timeslot, $device_id ) {
+  public function save( $timeslot, $device_id, $data ) {
 
+    $target = 'data.' . $timeslot . '.' . $device_id;
 
     $this->db->{'data'}->update(
       array( '_id' => $this->retrieved['_id'] ),
-      array( '$set' => $this->doc )
+      array( '$set' => array ( $target => $data ) )
     );
   }
 
@@ -112,11 +113,6 @@ class ENVMON  {
       }
 
       $slot = ( $hm[0] * 12 ) + ( $hm[1] / 5 );
-
-      /* There is no timeslot 0 - it's 287 previous day. */
-      if ( $slot == 0 ) {
-        $slot = 287;
-      }
 
       return( $slot );
     } elseif ( preg_match( "/^\d{1,3}$/", $ts ) ) {
