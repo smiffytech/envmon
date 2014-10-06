@@ -98,7 +98,7 @@ if ( $jdata === null ) {
 /*
  * Check all mandatory parameters have been supplied.
  */
-$mandatory_params = explode( ' ', 'device_id type date timeslot mean_value max_value min_value' );
+$mandatory_params = explode( ' ', 'device_id type date timeslot value' );
 foreach ( $mandatory_params as $thisparam ) {
   if ( !array_key_exists( $thisparam, $jdata ) {
     bad_request( 'mandatory parameter ' . $thisparam . ' missing.' );

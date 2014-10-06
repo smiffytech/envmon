@@ -21,7 +21,7 @@ class ENVMON  {
    */
   public function newdoc( $date = null ) {
 
-    $this->thisdoc = $this->template;
+    $this->thisdoc array();
 
     $this->thisdoc['date'] = ( $date === null ? $this->date : $date );
 
@@ -89,15 +89,11 @@ class ENVMON  {
   }
 
   /**
-   * Set up template for new documents, and default
-   * database connection parameters.
+   * Set up sensor record template.
    */
   public function __construct() {
     $this->date = date( 'Y-m-d' );
 
-    $this->template = array(
-      'date' => '0000-00-00',
-    );
     // 288 timeslots.
 
     $this->sensor_template = array(

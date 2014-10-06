@@ -21,10 +21,9 @@ function process_form() {
 
   var jdata = {};
   jdata['device_id'] = document.getElementById('device_id').value;
-  jdata['type'] = document.getElementById('type').value;
   jdata['date'] = document.getElementById('date').value;
   jdata['timeslot'] = document.getElementById('timeslot').value;
-  jdata['mean_value'] = document.getElementById('mean_value').value;
+  jdata['value'] = document.getElementById('value').value;
   jdata['min_value'] = document.getElementById('min_value').value;
   jdata['max_value'] = document.getElementById('max_value').value;
 
@@ -54,14 +53,13 @@ function set_defaults() {
   var isodate = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + daystring;
 
   document.getElementById('uri').value = 'http://envmon';
-  document.getElementById('type').value = 'temperature';
   document.getElementById('device_id').value = 'c00ffee';
   document.getElementById('date').value = isodate;
   document.getElementById('timeslot').value = timeslot();
   document.getElementById('auth_user').value = 'testuser';
   document.getElementById('auth_password').value = 'testpassword';
 
-  document.getElementById('mean_value').value = '21.0';
+  document.getElementById('value').value = '21.0';
   document.getElementById('max_value').value = '22.1';
   document.getElementById('min_value').value = '18.9';
 }
