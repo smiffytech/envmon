@@ -16,7 +16,7 @@ date_default_timezone_set('UTC');
 ob_start();
 
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: OPTIONS,POST');
+header('Access-Control-Allow-Methods: OPTIONS,POST,GET');
 
 /*
  * Handle options requests without instantiation ENVMON.
@@ -24,7 +24,7 @@ header('Access-Control-Allow-Methods: OPTIONS,POST');
 if ( strtoupper( $_SERVER['REQUEST_METHOD'] ) == 'OPTIONS' ) }
   header_remove( 'Content-type' );
   header( $_SERVER['SERVER_PROTOCOL'] . ' 200 OK ' );
-  header( 'Allow: POST' );
+  header( 'Allow: POST,GET' );
   header( 'Content-length: 0' );
   ob_flush();
   exit;
@@ -102,5 +102,6 @@ if ( $jdata === null ) {
   exit;
 }
 
+/***** If we reach this point, we are authenticated and have valid JSON data. *****/
 
 ?>
