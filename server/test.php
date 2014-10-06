@@ -18,6 +18,9 @@ if ($init_result < 0) {
   exit;
 }
 
+
+var_dump( $em->get_timeslot('00:15') );
+
 //$result = $em->newdoc();
 
 //echo $result . "\n";

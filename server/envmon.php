@@ -17,18 +17,29 @@ class ENVMON  {
   public $date;
 
   /**
-   * Create a new document from template.
+   * Create a new day's document.
    */
-  public function newdoc() {
-
-    /* Does record already exist? */
-    $this->get();
-    if (count($this->retrieved) > 0) {
-      return( -1 );
-    }
+  public function newdoc ( $date ) {
 
     $this->doc['_id'] = new MongoID();
-    $this->doc['recid'] = $this->doc['_id']->{'$id'};
+    $this->doc['date'] = $date;
+    $this->doc['mdate'] = new MongoDate( strtotime( $date . ' 00:00:00' ) );
+    $this->doc['geo'] = $this->config['geo'];
+    /* Show property not required in document. */
+    unset( $this->doc['geo']['show'] );
+
+    /*
+     * Create array of 288 timeslots.
+     */
+    $this->doc['data'] = array();
+    for ( $h = 0; $h < 24; $h++ ) {
+      for ( $m = 0; $m < 60; $m+=5 ) {
+        $t = sprintf("%02d:%02d", $h, $m);
+        $this->doc['data'][] = array( 't' => $t );
+      }
+    }
+
+    $this->db->{'data'}->insert( $this->doc, array( 'w' => 1 ) );
     
     return( 0 );
   }
@@ -36,35 +47,17 @@ class ENVMON  {
   /**
    * Retrieve a record by date.
    */
-  public function get() {
-    $query = array( 
-      'date' => $this->doc['date'], 
-      'timeslot' => $this->doc['timeslot'],
-      'device_id' => $this->doc['device_id']
-    );
-
-
-    $this->retrieved = $this->db->{'data'}->findOne( $query );
-
-    if ( count( $this->retrieved ) > 0 ) {
-      $this->retrieved['recid'] = $this->retrieved['_id']->{'$id'};
-    }
+  public function getbydate( $date ) {
+    $this->retrieved = $this->db->{'data'}->findOne( array( 'date' => $this->doc['date'] ) );
   }
 
-  /**
-   * Insert new document ($this->thisdoc) into
-   * database.
-   */
-  public function insert() {
-    unset( $this->doc['replace'] );
-    $this->db->{'data'}->insert($this->doc);
-  }
 
   /**
-   * Update document.
+   * Save a sensor reading.
    */
-  public function update() {
-    unset( $this->doc['_id'] );
+  public function save( $timeslot, $device_id ) {
+
+
     $this->db->{'data'}->update(
       array( '_id' => $this->retrieved['_id'] ),
       array( '$set' => $this->doc )
@@ -101,6 +94,34 @@ class ENVMON  {
     $this->db = $mongo->selectDB($this->config['database']['db']);
 
     return( 0 );
+  }
+
+  /**
+   * Validate/convert timeslot.
+   */
+  public function get_timeslot( $ts ) {
+    if ( preg_match( "/^\d{1,2}:\d{1,2}$/", $ts ) ) {
+      $hm = explode( ':', $ts );
+      if ( $hm[0] > 23 || $hm[1] > 59 ) {
+        return( -1 );
+      }
+
+      /* Not a five-minute slot. */
+      if ( $hm[1] % 5 != 0 ) {
+        return( -2 );
+      }
+
+      $slot = ( $hm[0] * 12 ) + ( $hm[1] / 5 );
+
+      return( $slot );
+    } elseif ( preg_match( "/^\d{1,3}$/", $ts ) ) {
+      if ( $ts > 287 ) {
+        return( -3 );
+      }
+      return( $ts );
+    } else {
+      return( -4 );
+    }
   }
 
   /**

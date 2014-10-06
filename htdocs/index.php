@@ -106,28 +106,45 @@ foreach ( $mandatory_params as $thisparam ) {
   }
 }
 
-$em->doc = $jdata;
+$ts = get_timeslot( $jdata['timeslot' );
+if ( $ts <
 
-$exists = $em->newdoc();
+$em->getbydate( $jdata['date'] );
+if ( count( $em->retrieved ) == 0 ) {
+  $em->newdoc( $jdata['date'] );
+  $em->getbydate( $jdata['date'] );
+}
 
-if ( $exists == 0 ) {
-  $em->insert();
-} elseif ( $exists != 0 && array_key_exists('replace', $jdata) && $jdata['replace'] === true ) {
-  $em->update();
+/* Does a record for this timeslot/sensor exist? */
+$exists = array_key_exists( $jdata['device_id'], $em->retrieved['data'][ $jdata['timeslot'] - 1 ]);
+
+/* Is replace parameter present, and true? */
+$replace = ( array_key_exists( 'replace', $jdata ) && 
+    $jdata['replace'] === true ? true : false );
+
+
+if ( ( $exists === true && $replace === true ) || $exists === false ) {
+  /* Save record. */
 } else {
+  /* Record exists, replace not set - return conflict. */
   header( $_SERVER['SERVER_PROTOCOL'] . ' 409 Conflict' );
   echo '409 Conflict';
   ob_flush();
   exit;
 }
 
+send_json( $em->doc['data'][4] );
 
-header( $_SERVER['SERVER_PROTOCOL'] . ' 200 OK' );
-echo '200 OK ' . $em->doc['recid'];
-ob_flush();
-exit;
 
 /***** Functions *****/
+
+function send_json( $jdata ) {
+  header('Content-type: application/json');
+  header( $_SERVER['SERVER_PROTOCOL'] . ' 200 OK' );
+  echo json_encode( $jdata, JSON_PRETTY_PRINT );
+  ob_flush();
+  exit;
+}
 
 function bad_request( $text = 'could not process request.' ) {
   header( $_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request' );

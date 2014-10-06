@@ -12,10 +12,10 @@
     "port" : 27017 
   },
   "geo" : {
-    "active" : false,
+    "show" : false,
     "lat" : null,
     "long" : null,
     "alt" : null,
-    "utc_offset" : 570 
+    "utc_offset" : 9.5 
   }
 }
