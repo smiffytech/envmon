@@ -17,5 +17,28 @@
     "long" : null,
     "alt" : null,
     "utc_offset" : 9.5 
+  },
+  "sensors" : [
+    {
+      "device_id" : "c0ffee",
+      "type" : "temperature",
+      "title" : "Dummy Temperature Sensor",
+      "location" : "somewhere",
+      "units" : "°C",
+      "ag_method" : "maxminsd"
+    },
+    {
+      "device_id" : "f00beef",
+      "type" : "rain",
+      "title" : "Dummy Rain Gauge",
+      "location" : "outside",
+      "resolution" : 0.2,
+      "units" : "mm",
+      "ag_method" : "count"
+    }
+  ],
+  "ag_methods" : {
+    "maxminsd" : { "max" : 0, "min" : 0, "mean" : 0, "sd" : 0, "max_ts" : 0, "min_ts" : 0 },
+    "count" : { "total" : 0, "max_ts" : 0 }
   }
 }

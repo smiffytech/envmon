@@ -23,10 +23,20 @@ class ENVMON  {
 
     $this->doc['_id'] = new MongoID();
     $this->doc['date'] = $date;
+    /* Timezone ignored - mdate only used for date range queries. */
     $this->doc['mdate'] = new MongoDate( strtotime( $date . ' 00:00:00' ) );
     $this->doc['geo'] = $this->config['geo'];
     /* Show property not required in document. */
     unset( $this->doc['geo']['show'] );
+
+    /* Copy of sensor data from config. */
+    $this->doc['sensors'] = $this->config['sensors'];
+
+    /* Create empty aggregates set. */
+    $this->doc['aggregates'] = array();
+    foreach ( $this->config['sensors'] as $sensor ) {
+      $this->doc['aggregates'][$sensor['device_id']] = $this->config['ag_methods'][$sensor['ag_method'];
+    }
 
     /*
      * Create array of 288 timeslots.
