@@ -23,7 +23,7 @@ function process_form() {
   jdata['device_id'] = document.getElementById('device_id').value;
   jdata['date'] = document.getElementById('date').value;
   jdata['timeslot'] = document.getElementById('timeslot').value;
-  jdata['data'] = document.getElementById('data').value;
+  jdata['data'] = JSON.parse(document.getElementById('data').value);
 
   jdata['replace'] = ( document.getElementById('replace').selectedIndex == 1 ? true : false );
 

@@ -106,6 +106,28 @@ foreach ( $mandatory_params as $thisparam ) {
   }
 }
 
+$em->doc = $jdata;
+
+$exists = $em->newdoc();
+
+if ( $exists == 0 ) {
+  $em->insert();
+} elseif ( $exists != 0 && array_key_exists('replace', $jdata) && $jdata['replace'] === true ) {
+  $em->update();
+} else {
+  header( $_SERVER['SERVER_PROTOCOL'] . ' 409 Conflict' );
+  echo '409 Conflict';
+  ob_flush();
+  exit;
+}
+
+
+header( $_SERVER['SERVER_PROTOCOL'] . ' 200 OK' );
+echo '200 OK ' . $em->doc['recid'];
+ob_flush();
+exit;
+
+/***** Functions *****/
 
 function bad_request( $text = 'could not process request.' ) {
   header( $_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request' );
@@ -113,11 +135,5 @@ function bad_request( $text = 'could not process request.' ) {
   ob_flush();
   exit;
 }
-
-
-header( $_SERVER['SERVER_PROTOCOL'] . ' 200 OK' );
-echo '200 OK';
-ob_flush();
-exit;
 
 ?>

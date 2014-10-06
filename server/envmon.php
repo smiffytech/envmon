@@ -5,8 +5,8 @@ class ENVMON  {
   public $template;
   /** var array sensor_template template for sensor document. */
   public $sensor_template;
-  /** var array thisdoc active document. */
-  public $thisdoc;
+  /** var array doc active document. */
+  public $doc;
   /** var array config system configuration parameters. */
   public $config;
   /** var object db MongoDB client connection to database. */
@@ -19,33 +19,36 @@ class ENVMON  {
   /**
    * Create a new document from template.
    */
-  public function newdoc( $date = null ) {
-
-    $this->thisdoc = array();
-
-    $this->thisdoc['date'] = ( $date === null ? $this->date : $date );
-
-    $this->thisdoc['_id'] = new MongoID();
+  public function newdoc() {
 
     /* Does record already exist? */
-    $this->get($date);
+    $this->get();
     if (count($this->retrieved) > 0) {
       return( -1 );
     }
+
+    $this->doc['_id'] = new MongoID();
+    $this->doc['recid'] = $this->doc['_id']->{'$id'};
     
-    return( $this->thisdoc['_id']->{'$id'} );
+    return( 0 );
   }
 
   /**
    * Retrieve a record by date.
    */
-  public function get( $date = null ) {
-    if ( $date === null ) {
-      $date = $this->date;
-    }
+  public function get() {
+    $query = array( 
+      'date' => $this->doc['date'], 
+      'timeslot' => $this->doc['timeslot'],
+      'device_id' => $this->doc['device_id']
+    );
 
-    $this->retrieved = $this->db->{'data'}->findOne( array( 'date' => $date ) );
-    $this->retrieved['recid'] = $this->retrieved['_id']->{'$id'};
+
+    $this->retrieved = $this->db->{'data'}->findOne( $query );
+
+    if ( count( $this->retrieved ) > 0 ) {
+      $this->retrieved['recid'] = $this->retrieved['_id']->{'$id'};
+    }
   }
 
   /**
@@ -53,7 +56,19 @@ class ENVMON  {
    * database.
    */
   public function insert() {
-    $this->db->{'data'}->insert($this->thisdoc);
+    unset( $this->doc['replace'] );
+    $this->db->{'data'}->insert($this->doc);
+  }
+
+  /**
+   * Update document.
+   */
+  public function update() {
+    unset( $this->doc['_id'] );
+    $this->db->{'data'}->update(
+      array( '_id' => $this->retrieved['_id'] ),
+      array( '$set' => $this->doc )
+    );
   }
 
   /**
@@ -92,9 +107,8 @@ class ENVMON  {
    * Set up sensor record template.
    */
   public function __construct() {
+    $this->doc = array();
     $this->date = date( 'Y-m-d' );
-
-    // 288 timeslots.
 
     $this->sensor_template = array(
       'type' => null,
