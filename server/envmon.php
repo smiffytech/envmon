@@ -113,6 +113,11 @@ class ENVMON  {
 
       $slot = ( $hm[0] * 12 ) + ( $hm[1] / 5 );
 
+      /* There is no timeslot 0 - it's 287 previous day. */
+      if ( $slot == 0 ) {
+        $slot = 287;
+      }
+
       return( $slot );
     } elseif ( preg_match( "/^\d{1,3}$/", $ts ) ) {
       if ( $ts > 287 ) {

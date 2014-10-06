@@ -106,8 +106,7 @@ foreach ( $mandatory_params as $thisparam ) {
   }
 }
 
-$ts = get_timeslot( $jdata['timeslot' );
-if ( $ts <
+$ts = $em->get_timeslot( $jdata['timeslot' );
 
 $em->getbydate( $jdata['date'] );
 if ( count( $em->retrieved ) == 0 ) {
