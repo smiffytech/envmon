@@ -15,6 +15,7 @@
     "active" : false,
     "lat" : null,
     "long" : null,
-    "alt" : null
+    "alt" : null,
+    "utc_offset" : 570 
   }
 }
