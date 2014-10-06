@@ -17,11 +17,12 @@ ob_start();
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: OPTIONS,POST,GET');
+header('Access-Control-Allow-Headers: Origin,Content-Type,Authorization,Accept');
 
 /*
  * Handle options requests without instantiation ENVMON.
  */
-if ( strtoupper( $_SERVER['REQUEST_METHOD'] ) == 'OPTIONS' ) }
+if ( strtoupper( $_SERVER['REQUEST_METHOD'] ) == 'OPTIONS' ) {
   header_remove( 'Content-type' );
   header( $_SERVER['SERVER_PROTOCOL'] . ' 200 OK ' );
   header( 'Allow: POST,GET' );
@@ -70,7 +71,7 @@ if ( strtolower( $ct[0] ) != 'application/json' ) {
  */
 if ( array_key_exists( 'authorization', $headers ) ) {
   $authparams = explode( ' ', $headers['authorization'] );
-  $userpass = explode( ':', base64decode( $authparams[1] ) );
+  $userpass = explode( ':', base64_decode( $authparams[1] ) );
 
   if ( $userpass[0] != $em->config['auth']['user'] || $userpass[1] != $em->config['auth']['pass'] ) {
     header( $_SERVER['SERVER_PROTOCOL'] . ' 401 Authorization Required' );
@@ -98,9 +99,9 @@ if ( $jdata === null ) {
 /*
  * Check all mandatory parameters have been supplied.
  */
-$mandatory_params = explode( ' ', 'device_id type date timeslot value' );
+$mandatory_params = explode( ' ', 'device_id date timeslot data' );
 foreach ( $mandatory_params as $thisparam ) {
-  if ( !array_key_exists( $thisparam, $jdata ) {
+  if ( !array_key_exists( $thisparam, $jdata ) ) {
     bad_request( 'mandatory parameter ' . $thisparam . ' missing.' );
   }
 }

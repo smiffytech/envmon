@@ -23,9 +23,7 @@ function process_form() {
   jdata['device_id'] = document.getElementById('device_id').value;
   jdata['date'] = document.getElementById('date').value;
   jdata['timeslot'] = document.getElementById('timeslot').value;
-  jdata['value'] = document.getElementById('value').value;
-  jdata['min_value'] = document.getElementById('min_value').value;
-  jdata['max_value'] = document.getElementById('max_value').value;
+  jdata['data'] = document.getElementById('data').value;
 
   jdata['replace'] = ( document.getElementById('replace').selectedIndex == 1 ? true : false );
 
@@ -59,9 +57,11 @@ function set_defaults() {
   document.getElementById('auth_user').value = 'testuser';
   document.getElementById('auth_password').value = 'testpassword';
 
-  document.getElementById('value').value = '21.0';
-  document.getElementById('max_value').value = '22.1';
-  document.getElementById('min_value').value = '18.9';
+  var defdata = {};
+  defdata.mean_value = 21.0;
+  defdata.max_value = 21.9;
+  defdata.min_value = 20.3;
+  document.getElementById('data').value = JSON.stringify( defdata );
 }
 
 

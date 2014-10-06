@@ -18,12 +18,12 @@ if ($init_result < 0) {
   exit;
 }
 
-$result = $em->newdoc();
+//$result = $em->newdoc();
 
-echo $result . "\n";
+//echo $result . "\n";
 
-$em->insert();
+//$em->insert();
 
-var_dump($em->thisdoc);
+//var_dump($em->thisdoc);
 
 ?>

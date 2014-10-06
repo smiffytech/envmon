@@ -21,7 +21,7 @@ class ENVMON  {
    */
   public function newdoc( $date = null ) {
 
-    $this->thisdoc array();
+    $this->thisdoc = array();
 
     $this->thisdoc['date'] = ( $date === null ? $this->date : $date );
 
@@ -61,7 +61,7 @@ class ENVMON  {
    * Database connection information should be set first.
    */
   public function init() {
-    $config_json = file_get_contents( './siteconfig.json' );
+    $config_json = file_get_contents( __DIR__ . '/siteconfig.json' );
 
     if ( $config_json === false ) {
       /* Return error - could not open config file. */

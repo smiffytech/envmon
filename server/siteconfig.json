@@ -1,5 +1,5 @@
 {
-  "auth" " {
+  "auth" : {
     "user" : "testuser",
     "pass" : "testpassword"
   },

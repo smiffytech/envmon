@@ -10,6 +10,8 @@
       <h1>envmon client test page</h1>
     </header>
 
+    <fieldset><legend>API</legend>
+
     <div class="formrow">
       <div class="label">
         <label for="uri">Server URI</label>
@@ -36,6 +38,9 @@
         <input type="text" id="auth_password"/>
       </div>
     </div>
+
+    </fieldset>
+    <fieldset><legend>Sensor</legend>
 
     <div class="formrow">
       <div class="label">
@@ -66,30 +71,15 @@
 
     <div class="formrow">
       <div class="label">
-        <label for="value">Value (absolute, or mean)</label>
+        <label for="data">Data</label>
       </div>
       <div class="widget">
-        <input type="text" id="value"/>
+        <textarea id="data" cols="60" rows="8"></textarea>
       </div>
     </div>
 
-    <div class="formrow">
-      <div class="label">
-        <label for="max_value">Maximum Value (optional)</label>
-      </div>
-      <div class="widget">
-        <input type="text" id="max_value"/>
-      </div>
-    </div>
-
-    <div class="formrow">
-      <div class="label">
-        <label for="min_value">Minimum Value (optional)</label>
-      </div>
-      <div class="widget">
-        <input type="text" id="min_value"/>
-      </div>
-    </div>
+    </fieldset>
+    <fieldset><legend>Miscellaneous</legend>
 
     <div class="formrow">
       <div class="label">
@@ -103,6 +93,7 @@
       </div>
     </div>
 
+    </fieldset>
 
     <p>
       <button id="send">Send</button>
