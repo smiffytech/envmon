@@ -56,18 +56,12 @@ foreach ( $raw_headers as $n => $v ) {
  * All requests should be POSTed as JSON.
  */
 if ( !array_key_exists('content-type', $headers) ) {
-  header( $_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request' );
-  echo '400 Bad Request - content type should be application/json';
-  ob_flush();
-  exit;
+  bad_request( 'content type should be application/json' );
 }
 
 $ct = preg_split( "/;*\s+/", $headers['content-type'] );
 if ( strtolower( $ct[0] ) != 'application/json' ) {
-  header( $_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request' );
-  echo '400 Bad Request - content type should be application/json';
-  ob_flush();
-  exit;
+  bad_request( 'content type should be application/json' );
 }
 
 
@@ -96,12 +90,33 @@ if ( array_key_exists( 'authorization', $headers ) ) {
  */
 $jdata = json_decode( file_get_contents( 'php://input' ), true );
 if ( $jdata === null ) {
+  bad_request('could not parse JSON.');
+}
+
+/***** If we reach this point, we are authenticated and have valid JSON data. *****/
+
+/*
+ * Check all mandatory parameters have been supplied.
+ */
+$mandatory_params = explode( ' ', 'device_id type date timeslot mean_value max_value min_value' );
+foreach ( $mandatory_params as $thisparam ) {
+  if ( !array_key_exists( $thisparam, $jdata ) {
+    bad_request( 'mandatory parameter ' . $thisparam . ' missing.' );
+  }
+}
+
+
+function bad_request( $text = 'could not process request.' ) {
   header( $_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request' );
-  echo '400 Bad Request - could not parse JSON.';
+  echo '400 Bad Request - ' . $text;
   ob_flush();
   exit;
 }
 
-/***** If we reach this point, we are authenticated and have valid JSON data. *****/
+
+header( $_SERVER['SERVER_PROTOCOL'] . ' 200 OK' );
+echo '200 OK';
+ob_flush();
+exit;
 
 ?>
