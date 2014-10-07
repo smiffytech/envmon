@@ -1,5 +1,30 @@
 <?php
-
+/**
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2014 Matthew Steven Smith
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * @package ENVMON
+ * @author Matthew Smith <matt@smiffytech.com>
+ */
 class ENVMON  {
   /** var array template basic document template. */
   public $template;
@@ -18,6 +43,8 @@ class ENVMON  {
 
   /**
    * Create a new day's document.
+   *
+   * @param string $date YYYY-MM-DD
    */
   public function newdoc ( $date ) {
 
@@ -49,11 +76,14 @@ class ENVMON  {
 
     $this->db->{'data'}->insert( $this->doc, array( 'w' => 1 ) );
     
-    return( 0 );
   }
 
   /**
    * Retrieve a record by date.
+   *
+   * Results written to $this->retrieved.
+   * 
+   * @param string $date YYYY-MM-DD
    */
   public function getbydate( $date ) {
     $this->retrieved = $this->db->{'data'}->findOne( array( 'date' => $date ) );
@@ -66,6 +96,11 @@ class ENVMON  {
 
   /**
    * Retrieve records by date range.
+   *
+   * Results written to $this->retrieved.
+   *
+   * @param string $date_from YYYY-MM-DD
+   * @param string $date_to YYYY-MM-DD
    */
   public function getbydaterange( $date_from, $date_to ) {
     $from = new MongoDate( strtotime( $date_from . ' 00:00:00' ) );
@@ -88,6 +123,10 @@ class ENVMON  {
 
   /**
    * Save a sensor reading.
+   *
+   * @param unsigned integer $timeslot
+   * @param string $device_id
+   * @param array $data
    */
   public function save( $timeslot, $device_id, $data ) {
 
@@ -102,6 +141,8 @@ class ENVMON  {
   /**
    * Initialisation, including database connection.
    * Database connection information should be set first.
+   *
+   * @return integer < 0 = error, 0 = success.
    */
   public function init() {
     $config_json = file_get_contents( __DIR__ . '/siteconfig.json' );
@@ -133,6 +174,9 @@ class ENVMON  {
 
   /**
    * Validate/convert timeslot.
+   * 
+   * @param string $ts [integer or time hh:mm]
+   * @return integer timeslot or < 0 for error.
    */
   public function get_timeslot( $ts ) {
     if ( preg_match( "/^\d{1,2}:\d{1,2}$/", $ts ) ) {
@@ -159,21 +203,6 @@ class ENVMON  {
     }
   }
 
-  /**
-   * Set up sensor record template.
-   */
-  public function __construct() {
-    $this->doc = array();
-    $this->date = date( 'Y-m-d' );
-
-    $this->sensor_template = array(
-      'type' => null,
-      'device_id' => null,
-      'description' => null,
-      'location' => null
-    );
-
-  }
 }
 
 
