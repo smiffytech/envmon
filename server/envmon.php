@@ -26,8 +26,6 @@ class ENVMON  {
     /* Timezone ignored - mdate only used for date range queries. */
     $this->doc['mdate'] = new MongoDate( strtotime( $date . ' 00:00:00' ) );
     $this->doc['geo'] = $this->config['geo'];
-    /* Show property not required in document. */
-    unset( $this->doc['geo']['show'] );
 
     /* Copy of sensor data from config. */
     $this->doc['sensors'] = $this->config['sensors'];
@@ -35,7 +33,7 @@ class ENVMON  {
     /* Create empty aggregates set. */
     $this->doc['aggregates'] = array();
     foreach ( $this->config['sensors'] as $sensor ) {
-      $this->doc['aggregates'][$sensor['device_id']] = $this->config['ag_methods'][$sensor['ag_method'];
+      $this->doc['aggregates'][$sensor['device_id']] = $this->config['ag_methods'][$sensor['ag_method']];
     }
 
     /*
@@ -58,9 +56,35 @@ class ENVMON  {
    * Retrieve a record by date.
    */
   public function getbydate( $date ) {
-    $this->retrieved = $this->db->{'data'}->findOne( array( 'date' => $this->doc['date'] ) );
+    $this->retrieved = $this->db->{'data'}->findOne( array( 'date' => $date ) );
+    if ( count( $this->retrieved ) > 0 ) {
+      $this->retrieved['recid'] = $this->retrieved['_id']->{'$id'};
+      unset( $this->retrieved['_id'] );
+      unset( $this->retrieved['mdate'] );
+    }
   }
 
+  /**
+   * Retrieve records by date range.
+   */
+  public function getbydaterange( $date_from, $date_to ) {
+    $from = new MongoDate( strtotime( $date_from . ' 00:00:00' ) );
+    $to = new MongoDate( strtotime( $date_to . ' 00:00:00' ) );
+
+    $results = iterator_to_array(
+      $this->db->{'data'}->find( array( 'mdate' => array( '$gte' => $from, '$lte' => $to ) ) ),
+      FALSE
+    );
+
+    /* Remove mongo-ish stuff. */
+    foreach ( $results as $result ) {
+      $result['recid'] = $result['_id']->{'$id'};
+      unset( $result['_id'] );
+      unset( $result['mdate'] );
+      $this->retrieved[] = $result;
+    }
+
+  }
 
   /**
    * Save a sensor reading.

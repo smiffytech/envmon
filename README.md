@@ -90,7 +90,7 @@ MongoDB connection parameters. Note that this does not include any advanced para
 
 Geospatial data, recorded in every day's document, used to calculate sunrise/sunset times, and any other astronomical data that may be displayed.
 
-* show (boolean) - whether or not to show location on public pages.
+* show (boolean) - whether or not to show location on public pages. Note that this parameter does not supress the output of the geo array, it merely acts as an indicator to any downstream software that this information should be redacted before presentation.
 * lat (float, or null) - latitude.
 * long (float, or null) - longitude.
 * alt (integer, or null) - elevation.
@@ -132,10 +132,12 @@ An HTML/JavaScript test harness for sending data to the API is located in the cl
 ### Implemented ###
 
 * POST - saving records, but without aggregation.
+* GET - single records.
+* GET - date range.
 
 ### To Do ###
 
-* GET.
+* Authentication disabled for testing, REINSTATE.
 * Sunrise/sunset.
 * Moon phase.
 * Batch mode - pass multiple documents in a single request.

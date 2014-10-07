@@ -18,8 +18,9 @@ if ($init_result < 0) {
   exit;
 }
 
+$em->getbydaterange('2014-09-09', '2014-11-11');
 
-var_dump( $em->get_timeslot('00:00') );
+var_dump( $em->retrieved );
 
 //$result = $em->newdoc();
 
