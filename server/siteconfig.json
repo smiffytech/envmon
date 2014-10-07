@@ -1,5 +1,6 @@
 {
   "auth" : {
+    "useauth" : false,
     "user" : "testuser",
     "pass" : "testpassword"
   },
@@ -20,7 +21,7 @@
   },
   "sensors" : [
     {
-      "device_id" : "c0ffee",
+      "device_id" : "c00ffee",
       "type" : "temperature",
       "title" : "Dummy Temperature Sensor",
       "location" : "somewhere",

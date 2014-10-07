@@ -12,7 +12,7 @@ JSON HTTP API/storage backend for weather/environmental monitoring.
 
 ### POST ###
 
-Data is sent to the API for handling by POSTing a JSON document. All requests are authenticated using basic authentication.
+Data is sent to the API for handling by POSTing a JSON document.
 
 The database document for a day is divided into five-minute timeslots, which are numbered 0 through 287, with timeslot 0 being the period from 00:00:00 local time through 00:04:59. The message format is defined thus:
 
@@ -72,6 +72,7 @@ Configuration for the system is through a JSON document, siteconfig.json, which 
 
 ### auth ###
 
+* useauth (boolean, default false) - use authorisation.
 * user (string) - user name for basic authentication
 * pass (string) - password for basic authentication
 
@@ -79,7 +80,7 @@ Configuration for the system is through a JSON document, siteconfig.json, which 
 
 MongoDB connection parameters. Note that this does not include any advanced parameters, such as sharing, or replication.
 
-* useauth (boolean) - whether or not to provide authentication information with connection.
+* useauth (boolean, default false) - whether or not to provide authentication information with connection.
 * user (string or null) - MongoDB user
 * pass (string or null) - MongoDB password
 * db (string, default 'envmon') - database name

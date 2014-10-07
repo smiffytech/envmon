@@ -1,30 +1,4 @@
 <?php
-/**
- * The MIT License (MIT)
- * 
- * Copyright (c) 2014 Matthew Steven Smith
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
- * @package index.php
- * @author Matthew Smith <matt@smiffytech.com>
- */
 
 require "../server/envmon.php";
 
@@ -95,26 +69,26 @@ if ( strtoupper( $_SERVER['REQUEST_METHOD'] ) == 'POST' ) {
 
 
 /*
- * Check authorisation.
+ * Check authorisation, if enabled.
  */
-/*
-if ( array_key_exists( 'authorization', $headers ) ) {
-  $authparams = explode( ' ', $headers['authorization'] );
-  $userpass = explode( ':', base64_decode( $authparams[1] ) );
+if ( $em->config['auth']['useauth'] === true ) {
+  if ( array_key_exists( 'authorization', $headers ) ) {
+    $authparams = explode( ' ', $headers['authorization'] );
+    $userpass = explode( ':', base64_decode( $authparams[1] ) );
 
-  if ( $userpass[0] != $em->config['auth']['user'] || $userpass[1] != $em->config['auth']['pass'] ) {
+    if ( $userpass[0] != $em->config['auth']['user'] || $userpass[1] != $em->config['auth']['pass'] ) {
+      header( $_SERVER['SERVER_PROTOCOL'] . ' 401 Authorization Required' );
+      echo '401 Authorization Required';
+      ob_flush();
+      exit;
+    }
+  } else {
     header( $_SERVER['SERVER_PROTOCOL'] . ' 401 Authorization Required' );
     echo '401 Authorization Required';
     ob_flush();
     exit;
   }
-} else {
-  header( $_SERVER['SERVER_PROTOCOL'] . ' 401 Authorization Required' );
-  echo '401 Authorization Required';
-  ob_flush();
-  exit;
 }
-*/
 
 if ( strtoupper( $_SERVER['REQUEST_METHOD'] ) == 'POST' ) {
   /*
@@ -124,8 +98,6 @@ if ( strtoupper( $_SERVER['REQUEST_METHOD'] ) == 'POST' ) {
   if ( $jdata === null ) {
     bad_request('could not parse JSON.');
   }
-
-  /***** If we reach this point, we are authenticated and have valid JSON data. *****/
 
   /*
    * Check all mandatory parameters have been supplied.

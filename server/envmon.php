@@ -1,45 +1,15 @@
 <?php
 /**
- * The MIT License (MIT)
- * 
- * Copyright (c) 2014 Matthew Steven Smith
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
  * @package ENVMON
  * @author Matthew Smith <matt@smiffytech.com>
  */
 class ENVMON  {
-  /** var array template basic document template. */
-  public $template;
-  /** var array sensor_template template for sensor document. */
-  public $sensor_template;
-  /** var array doc active document. */
-  public $doc;
-  /** var array config system configuration parameters. */
+  /** var array $config system configuration parameters. */
   public $config;
-  /** var object db MongoDB client connection to database. */
+  /** var object $db MongoDB client connection to database. */
   public $db;
-  /** var array retrieved document from database. */
+  /** var array $retrieved document from database. */
   public $retrieved;
-  /** var string date today's date, by local timezone. */
-  public $date;
 
   /**
    * Create a new day's document.
@@ -47,34 +17,34 @@ class ENVMON  {
    * @param string $date YYYY-MM-DD
    */
   public function newdoc ( $date ) {
-
-    $this->doc['_id'] = new MongoID();
-    $this->doc['date'] = $date;
+    $doc = array();
+    $doc['_id'] = new MongoID();
+    $doc['date'] = $date;
     /* Timezone ignored - mdate only used for date range queries. */
-    $this->doc['mdate'] = new MongoDate( strtotime( $date . ' 00:00:00' ) );
-    $this->doc['geo'] = $this->config['geo'];
+    $doc['mdate'] = new MongoDate( strtotime( $date . ' 00:00:00' ) );
+    $doc['geo'] = $this->config['geo'];
 
     /* Copy of sensor data from config. */
-    $this->doc['sensors'] = $this->config['sensors'];
+    $doc['sensors'] = $this->config['sensors'];
 
     /* Create empty aggregates set. */
-    $this->doc['aggregates'] = array();
+    $doc['aggregates'] = array();
     foreach ( $this->config['sensors'] as $sensor ) {
-      $this->doc['aggregates'][$sensor['device_id']] = $this->config['ag_methods'][$sensor['ag_method']];
+      $doc['aggregates'][$sensor['device_id']] = $this->config['ag_methods'][$sensor['ag_method']];
     }
 
     /*
      * Create array of 288 timeslots.
      */
-    $this->doc['data'] = array();
+    $doc['data'] = array();
     for ( $h = 0; $h < 24; $h++ ) {
       for ( $m = 0; $m < 60; $m+=5 ) {
         $t = sprintf("%02d:%02d", $h, $m);
-        $this->doc['data'][] = array( 't' => $t );
+        $doc['data'][] = array( 't' => $t );
       }
     }
 
-    $this->db->{'data'}->insert( $this->doc, array( 'w' => 1 ) );
+    $this->db->{'data'}->insert( $doc, array( 'w' => 1 ) );
     
   }
 
@@ -133,7 +103,7 @@ class ENVMON  {
     $target = 'data.' . $timeslot . '.' . $device_id;
 
     $this->db->{'data'}->update(
-      array( '_id' => $this->retrieved['_id'] ),
+      array( '_id' => new MongoID( $this->retrieved['recid'] ) ),
       array( '$set' => array ( $target => $data ) )
     );
   }
