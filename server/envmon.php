@@ -24,6 +24,15 @@ class ENVMON  {
     $doc['mdate'] = new MongoDate( strtotime( $date . ' 00:00:00' ) );
     $doc['geo'] = $this->config['geo'];
 
+    /* Attempt to calculate day's sun times. */
+    $srss = $this->srss( $date );
+    if ( $srss['status'] === true ) {
+      unset($srss['status']);
+      $doc['sun_times'] = $srss;
+    } else {
+      $doc['sun_times'] = array();
+    }
+
     /*
      * Copy sensor data from config, using device_id
      * as array key. 
@@ -268,6 +277,45 @@ class ENVMON  {
     } else {
       return( -4 );
     }
+  }
+
+  /**
+   * Calculate sunrise, sunset, twilight times.
+   */
+  public function srss( $date ) {
+    $times = array( 'status' => true );
+
+    /* Check lat/long are set. */
+    if ( $this->config['geo']['lat'] === null ||
+         $this->config['geo']['long'] === null ) {
+      $times['status'] = false;
+      return( $times );
+    }
+
+    $lat = $this->config['geo']['lat'];
+    $long = $this->config['geo']['long'];
+    $offset = $this->config['geo']['utc_offset'];
+
+    $t = strtotime( $date . ' 00:00:00' ); 
+
+    /* The following are derived from a comment on the PHP man page for date_sunrise(). */
+    $zenith = 90 + (50 / 60);
+    $times['sunrise'] = date_sunrise($t, SUNFUNCS_RET_STRING, $lat, $long, $zenith, $offset);
+    $times['sunset'] = date_sunset($t, SUNFUNCS_RET_STRING, $lat, $long, $zenith, $offset);
+
+    $zenith=96;
+    $times['civil_twilight_start'] = date_sunrise($t, SUNFUNCS_RET_STRING, $lat, $long, $zenith, $offset);
+    $times['civil_twilight_end'] = date_sunset($t, SUNFUNCS_RET_STRING, $lat, $long, $zenith, $offset);
+
+    $zenith=102;
+    $times['nautical_twilight_start'] = date_sunrise($t, SUNFUNCS_RET_STRING, $lat, $long, $zenith, $offset);
+    $times['nautical_twilight_end'] = date_sunset($t, SUNFUNCS_RET_STRING, $lat, $long, $zenith, $offset);
+
+    $zenith=108;
+    $times['astronomical_twilight_start'] = date_sunrise($t, SUNFUNCS_RET_STRING, $lat, $long, $zenith, $offset);
+    $times['astronomical_twilight_end'] = date_sunset($t, SUNFUNCS_RET_STRING, $lat, $long, $zenith, $offset);
+
+    return( $times );
   }
 
 }

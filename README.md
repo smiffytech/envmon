@@ -98,6 +98,8 @@ Geospatial data, recorded in every day's document, used to calculate sunrise/sun
 * alt (integer, or null) - elevation.
 * utc_offset (float) - local timezone offset from UTC (hours.) Note that system ignores daylight savings.
 
+The latitude, longitude and timezone offset in the example configurtion file are for Adelaide Airport (ADL.)
+
 ### sensors ###
 
 List of all sensors on which system is reporting.
@@ -136,11 +138,12 @@ An HTML/JavaScript test harness for sending data to the API is located in the cl
 * POST - saving records, but without aggregation.
 * GET - single records.
 * GET - date range.
+* Sun times written when new day's document is created.
 
 ### To Do ###
 
-* Authentication disabled for testing, REINSTATE.
-* Sunrise/sunset.
+Possibilities rather than certainties.
+
 * Moon phase.
 * Batch mode - pass multiple documents in a single request.
 

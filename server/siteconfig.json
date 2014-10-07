@@ -14,8 +14,8 @@
   },
   "geo" : {
     "show" : false,
-    "lat" : null,
-    "long" : null,
+    "lat" : -34.9450,
+    "long" : 138.5306,
     "alt" : null,
     "utc_offset" : 9.5 
   },
