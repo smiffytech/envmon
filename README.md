@@ -48,8 +48,8 @@ An earth field magnetometer would have fields similar to that for a temperature 
 
 Data for individual days may retrieved by passing the following parameters in the query string:
 
-* date ( YYY-MM-DD )
-* timeslot ( 0 - 287 )
+* date ( YYYY-MM-DD )
+* timeslot ( 0 - 287, or 00:00 - 23:55, in five-minute increments. )
 * device_id ( assumed to be a hexadecimal string, UUID, or similar. )
 
 If only the date is passed, the entire document for the day will be returned. If date and timeslot are passed, all data (all sensors) will be returned for the given timeslot. If date, timeslot, and device_id are all passed, only the sub-document for given sensor and timeslot is returned.
@@ -101,7 +101,7 @@ Geospatial data, recorded in every day's document, used to calculate sunrise/sun
 
 List of all sensors on which system is reporting.
 
-* device_id (string) - unique identifier for device. If using 1-Wire devices, this would be the part serial number. In the absence of the device having an ID, one should be made up which is unique to the system.
+* device_id (string) - unique identifier for device. If using 1-Wire devices, this would be the part serial number. In the absence of the device having an ID, I would suggest generating a UUID for this purpose.
 * type (string) - temperature, rain (list will be expanded.)
 * title (string) - device title, for reports.
 * location (string) - location of device, for reports.

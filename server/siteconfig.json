@@ -40,6 +40,6 @@
   ],
   "ag_methods" : {
     "maxminsd" : { "max" : 0, "min" : 0, "mean" : 0, "sd" : 0, "max_ts" : 0, "min_ts" : 0 },
-    "count" : { "total" : 0, "max_ts" : 0 }
+    "count" : { "total" : 0, "max" : 0, "max_ts" : 0 }
   }
 }

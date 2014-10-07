@@ -24,13 +24,20 @@ class ENVMON  {
     $doc['mdate'] = new MongoDate( strtotime( $date . ' 00:00:00' ) );
     $doc['geo'] = $this->config['geo'];
 
-    /* Copy of sensor data from config. */
-    $doc['sensors'] = $this->config['sensors'];
-
-    /* Create empty aggregates set. */
-    $doc['aggregates'] = array();
+    /*
+     * Copy sensor data from config, using device_id
+     * as array key. 
+     */
     foreach ( $this->config['sensors'] as $sensor ) {
-      $doc['aggregates'][$sensor['device_id']] = $this->config['ag_methods'][$sensor['ag_method']];
+      $device_id = $sensor['device_id'];
+      unset( $sensor['device_id'] );
+      $doc['sensors'][$device_id] = $sensor;
+    }
+
+    /* Create empty stats set. */
+    $doc['stats'] = array();
+    foreach ( $this->config['sensors'] as $sensor ) {
+      $doc['stats'][$sensor['device_id']] = $this->config['ag_methods'][$sensor['ag_method']];
     }
 
     /*
@@ -45,7 +52,97 @@ class ENVMON  {
     }
 
     $this->db->{'data'}->insert( $doc, array( 'w' => 1 ) );
-    
+  }
+
+  /**
+   * Update statistics for a sensor.
+   */
+  public function dostats( $date, $ts, $device_id ) {
+    /* We have just updated the document, so need to retrieve it again. */
+    $this->getbydate( $date );
+
+    $method = $this->retrieved['sensors'][$device_id]['ag_method'];
+
+    $target = 'stats' . '.' . $device_id;
+
+    if ( $method == 'maxminsd' ) {
+      $dataset = array();
+      for ( $i = 0; $i <= $ts; $i++ ) {
+        $dataset[] = $this->retrieved['data'][$i][$device_id]['mean_value'];
+      }
+
+      $stats = $this->maxminsd( $dataset );
+      /* Sum is not relevant/recorded, remove. */
+      unset($stats['sum']);
+
+    } elseif ( $method == 'count' ) {
+
+      $dataset = array();
+      for ( $i = 0; $i <= $ts; $i++ ) {
+        $dataset[] = $this->retrieved['data'][$i][$device_id]['count'];
+      }
+
+      $tmpstats = $this->maxminsd( $dataset ); 
+
+      $stats = array( 'total' => $tmpstats['sum'], 'max' => $tmpstats['max'], 'max_ts' => $tmpstats['max_ts'] );
+    }
+
+    $query = array( '$set' => array( $target => $stats ) );
+
+    $this->db->{'data'}->update( array( '_id' => new MongoID( $this->retrieved['recid'] ) ), $query );
+  }
+
+  /**
+   * Simple statistical calculations.
+   *
+   * @param array $dataset array of numbers.
+   * @return array.
+   */
+  public function maxminsd( $dataset ) {
+    $stats = array(
+      'sum' => 0,
+      'max' => 0,
+      'min' => $dataset[0],
+      'mean' => 0,
+      'sd' => 0,
+      'max_idx' => 0,
+      'min_idx' => 0
+    );
+
+    $count = 0;
+
+    /* 
+     * Calculate sum, maximum, minimum,
+     * and positions of maximum, minimum.
+     */
+    foreach ( $dataset as $n ) {
+      $stats['sum'] += $n;
+      if ( $n > $stats['max'] ) {
+        $stats['max'] = $n;
+        $stats['max_idx'] = $count;
+      }
+      if ( $n < $stats['min'] ) {
+        $stats['min'] = $n;
+        $stats['min_idx'] = $count;
+      }
+      $count++;
+    }
+
+    /* Calculate mean. */
+    $stats['mean'] = $stats['sum'] / $count;
+
+    /* Calculate variance. */
+    $vt = 0;
+    foreach ( $dataset as $n ) {
+      $v =  $n - $stats['mean'];
+      $vt += ( $v * $v );
+    }
+    $var = $vt / $count;
+
+    /* Calculate standard deviation. */
+    $stats['sd'] = sqrt( $var );
+
+    return( $stats );
   }
 
   /**

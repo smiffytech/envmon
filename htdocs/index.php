@@ -139,6 +139,10 @@ if ( strtoupper( $_SERVER['REQUEST_METHOD'] ) == 'POST' ) {
   if ( ( $exists === true && $replace === true ) || $exists === false ) {
     /* Save record. */
     $em->save( $ts, $jdata['device_id'], $jdata['data'] );
+
+    /* Update statistics. */
+    $em->dostats( $jdata['date'], $ts, $jdata['device_id'] );
+
   } else {
     /* Record exists, replace not set - return conflict. */
     header( $_SERVER['SERVER_PROTOCOL'] . ' 409 Conflict' );
