@@ -6,7 +6,8 @@ JSON HTTP API/storage backend for weather/environmental monitoring.
 * Coded in PHP.
 * MongoDB database backend.
 * Single dependency beyond stock PHP: MongoDB driver (PECL mongo.)
-* All data for each day stored in a single document, with daily aggregate values calculated as data comes in.
+* All data for each day stored in a single document, with daily statistics calculated as data comes in.
+* Documents contain copies of sensor descriptions allowing each to be used stand-alone.
 
 ## Messages ##
 

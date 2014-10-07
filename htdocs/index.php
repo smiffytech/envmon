@@ -162,14 +162,17 @@ if ( strtoupper( $_SERVER['REQUEST_METHOD'] ) == 'POST' ) {
     bad_request('missing GET parameters.');
   }
 
+  /* date and date_from or date_to are mutually exclusive. */
   if ( array_key_exists( 'date', $_GET ) && ( array_key_exists( 'date_from', $_GET ) || array_key_exists( 'date_to', $_GET ) ) ) {
     bad_request('cannot use date parameter with date_from or date_to');
   }
 
+  /* date required when timeslot or device_id are given. */
   if ( !array_key_exists( 'date', $_GET ) && ( array_key_exists( 'timeslot', $_GET ) || array_key_exists( 'device_id', $_GET ) ) ) {
     bad_request('timeslot/device_id parameters require the date parameter to be set.');
   }
 
+  /* device_id requires timeslot, date. */
   if ( !array_key_exists( 'timeslot', $_GET ) && array_key_exists( 'device_id', $_GET ) ) {
     bad_request('device_id parameter requires date, and timeslot parameters to be present.');
   }
@@ -184,6 +187,7 @@ if ( strtoupper( $_SERVER['REQUEST_METHOD'] ) == 'POST' ) {
     /* Timeslot provided. */
     if ( array_key_exists( 'timeslot', $_GET ) ) {
 
+      /* Process/validate timeslot. */
       $ts = $em->get_timeslot( $_GET['timeslot'] );
       if ( $ts < 0 ) {
         bad_request( 'invalid timeslot ' . $_GET['timeslot'] );
@@ -192,6 +196,7 @@ if ( strtoupper( $_SERVER['REQUEST_METHOD'] ) == 'POST' ) {
       /* Device ID provided. */
       if ( array_key_exists( 'device_id', $_GET ) ) {
         if ( count( $em->retrieved['data'][$ts][$_GET['device_id']] ) == 0 ) {
+          /* Device ID not found in given timeslot. */
           not_found();
         } else {
           send_json( $em->retrieved['data'][$ts][$_GET['device_id']] );
