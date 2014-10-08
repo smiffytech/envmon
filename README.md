@@ -71,6 +71,8 @@ In the event that no data is available for a GET request, the API will return er
 
 Configuration for the system is through a JSON document, siteconfig.json, which is located in the server directory. The various sections of this document are described below.
 
+Note that this project provides a siteconfig.json.example as a template; siteconfig.json is listed in the project's .gitignore, so can be considered a private file.
+
 ### auth ###
 
 * useauth (boolean, default false) - use authorisation.
