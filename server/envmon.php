@@ -65,6 +65,15 @@ class ENVMON  {
 
   /**
    * Update statistics for a sensor.
+   *
+   * Two methods are currently supported: maxminsd (for temperatures, and similar,) 
+   * and count (for rain gauges and similar.) Further
+   * methods of generating statistics for other sensor types may be added
+   * to this function.
+   *
+   * @param string $date YYYY-MM-DD
+   * @param unsigned integer $ts timeslot 0 - 278.
+   * @param string $device_id unique identifier for sensor.
    */
   public function dostats( $date, $ts, $device_id ) {
     /* We have just updated the document, so need to retrieve it again. */
@@ -105,7 +114,7 @@ class ENVMON  {
    * Simple statistical calculations.
    *
    * @param array $dataset array of numbers.
-   * @return array.
+   * @return array of the sum, maximum, minimum, mean, standard deviation, array position of first occurrence of maximum value, array position of first occurrence of minimum value.
    */
   public function maxminsd( $dataset ) {
     $stats = array(
