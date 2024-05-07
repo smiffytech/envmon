@@ -16,10 +16,37 @@ So my preference is to receive the raw data, and deal with it myself - with a Un
 
 ## UPD Description Document
 
+### Sections
+
+* `meta` - not actually necessary, although may be useful documentation. Arbitrary keys.
+* `general` - applies to both input and output messages as a whole.
+  * `structure` - output document is either **flat**, a set of key-value pairs (KVPs), or **hierarchy**, where each field has a record, with a **value** and arbitrary descriptive KVPs.
+  * `input_format` - at the moment, based on what I have seen, either Base64 or hexadecimal encoding.
+* `fields` - the actual measurements, or other values. Associative array. This is under active development, as I try to consolidate the different way in which the raw data is formatted.
+  * `match` 
+    * `position` - this field starts at byte position **x** of the message
+      * this requires `start_byte`
+    * `channel` - use channel/channel type to identify the field. I am assuming that this is due to the byte order of certain devices to be inconsistent, possibly due to version modifications, device variants (so shit design practice.) So the message is in chunks, without a fixed start byte, but of fixed length. This corresponds to the (also bad) practice of using an array in  a JSON document, iterating through, and waiting to see a certain item, rather than using an associative array with keys.
+      * this requires
+        * `channel_id` - numeric identifier
+        * `channel_id_byte` - zero indexed, position in message chunk
+        * `channel_type` - numerical identifier, might be `null`
+        * `channel_type_byte` - zero indexed, position in message chunk, because we don't know if Milesight's example (below) is consistent.   
+  * `data_length` - irrespective of the `match` type, the number of bytes representing this data. So an 8, 16, 32 bit value will be 1, 2, 4 length.
+  * `start_byte` - can be `null`, or omitted, if `match` is not `position`.
+  * `type` - how are we converting this? Is it:
+    * `int`
+    * `float`
+    * `string`
+  * `signed` - for `int`, `float`
+  * `endian` - for `int`, `float`.  Values are `l` (little) and `b` (big)`l` is lower case L.
+  * `multiplier` - what do we do with the converted number? When we are describing something like this, we need to rationalise, and not have an if/or multiply/divide, add/subtract. If this is a division? This value is 1 / divisor. 
+
 ```
 {
 	"meta": {
-		"name": "em300-udl",
+		"name": "em300-th",
+		"description": "temperature, hummidity sensor"
 		"manufacturer": "Milesight"
 	},
 	"general": {
@@ -27,7 +54,25 @@ So my preference is to receive the raw data, and deal with it myself - with a Un
 		"input_format": "base64"
 	}
 	"fields": {
-	
+		"temperature": {
+			"match": "channel",
+			"channel_id": "0x0d",
+			"channel_id_byte": 0,
+			"channel_type": "0xc7",
+			"channel_type_byte": 1,
+			"data_length": 2,
+			"start_byte": null,
+			"type": "int",
+			"signed": false,
+			"endian": "l",
+			"multiplier": 0.1
+		},
+		"humidity": {
+		
+		},
+		"battery": {
+		
+		}
 	}
 }
 ```
