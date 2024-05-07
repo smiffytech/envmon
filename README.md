@@ -1,6 +1,16 @@
 envmon
 ======
 
+After ten years, I am resurrecting this project, sticking with some of my original ideas, but with different technologies.
+
+So much has changed! The new implementation will have a Python API, talking to a PostgreSQL database with JSONB columns to hold day records, and configuration data, with regular columns for timestamped data. Most of the logic will be in the database itself, written in PL/pgSQL. I am deploying with Docker,based on the python3 image.
+
+One of the biggest changes since I was here last, is in terms of hardware. 10 years ago, I was programming mostly Freescale HCS08 microcontrollers in C (also TI MSP30, Freescale Kinetis.) I just about had Bluetooth working, and was looking at Xbee as a reasonable distance communication medium.
+
+Now I have super-cheap microcontroller boards with WIFI and Bluetooth, and I can progamme them in Python (Micropython.) Xbee still holds promise for mid-distance, higher speed communications, but LoRaWAN has opened everything up for remote devices. (I have been doing a lot of remote sensing work for the last nearly 3 years, and have just started getting my hands dirty with LoRaWAN radios.)
+
+## Old README from 2014
+
 JSON HTTP API/storage backend for weather/environmental monitoring.
 
 * Coded in PHP.
