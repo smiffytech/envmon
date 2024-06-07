@@ -12,7 +12,7 @@ Adding this to the fact that I do NOT like the idea of running arbitrary code, n
 
 But, if dealing with multiple networks, do I really want to be putting even descriptions on multiple dashboards? And what about those where you have to choose from a list?
 
-So my preference is to receive the raw data, and deal with it myself - with a Universal Payload Decoder, a simple Python module that can read a control document, and use that to convert the payload, either into JSON, or just return a dictionary for further processing.
+So my preference is to receive the raw data, and deal with it myself - with a Universal Payload Decoder, a Python class `UPD`, that can read a control document, and use that to convert the payload, either into JSON, or just return a dictionary for further processing.
 
 ## UPD Description Document
 
@@ -21,7 +21,8 @@ So my preference is to receive the raw data, and deal with it myself - with a Un
 * `meta` - not actually necessary, although may be useful documentation. Arbitrary keys.
 * `general` - applies to both input and output messages as a whole.
   * `structure` - output document is either **flat**, a set of key-value pairs (KVPs), or **hierarchy**, where each field has a record, with a **value** and arbitrary descriptive KVPs.
-  * `input_format` - at the moment, based on what I have seen, either Base64 or hexadecimal encoding.
+  * `input_format` - at the moment, based on what I have seen, either Base64 or hexadecimal encoding, so values are **base64**, **hex**, with the addition of **bytes**, for use in the `UPD` Python class, if we are passing the value to decode as a `bytes` like object, rather than something that first has to be decoded.
+  * `output_format` - **dict** or **json**
 * `fields` - the actual measurements, or other values. Associative array. This is under active development, as I try to consolidate the different way in which the raw data is formatted.
   * `match` 
     * `position` - this field starts at byte position **x** of the message
